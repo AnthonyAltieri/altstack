@@ -1,0 +1,4 @@
+When writing tests:
+- **MUST** focus on the invariants
+- **MUST** write concicely
+- **MUST** avoid repeated code in order to highlight the invariants

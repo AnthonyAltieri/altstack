@@ -1,0 +1,474 @@
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { openApiToZodTsCode } from "./to-typescript";
+import {
+  registerZodSchemaToOpenApiSchema,
+  clearZodSchemaToOpenApiSchemaRegistry,
+} from "./registry";
+
+describe("openApiToZodTsCode with routes", () => {
+  beforeEach(() => {
+    clearZodSchemaToOpenApiSchemaRegistry();
+  });
+
+  afterEach(() => {
+    clearZodSchemaToOpenApiSchemaRegistry();
+  });
+
+  describe("route generation", () => {
+    it("should generate Request and Response objects for paths", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                name: { type: "string" },
+              },
+              required: ["id", "name"],
+            },
+          },
+        },
+        paths: {
+          "/users/{id}": {
+            get: {
+              parameters: [
+                {
+                  name: "id",
+                  in: "path",
+                  required: true,
+                  schema: { type: "string" },
+                },
+              ],
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: true,
+      });
+
+      expect(result).toContain("export const GetUsersIdParamsSchema");
+      expect(result).toContain("export const GetUsersIdResponseSchema");
+      expect(result).toContain("export const Request = {");
+      expect(result).toContain("export const Response = {");
+      expect(result).toContain("'/users/{id}':");
+      expect(result).toContain("GET:");
+      expect(result).toContain("params: GetUsersIdParamsSchema");
+      expect(result).toContain("GET: GetUsersIdResponseSchema");
+    });
+
+    it("should generate Request with body schema", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            CreateUser: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+              },
+              required: ["name"],
+            },
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+                name: { type: "string" },
+              },
+              required: ["id", "name"],
+            },
+          },
+        },
+        paths: {
+          "/users": {
+            post: {
+              requestBody: {
+                content: {
+                  "application/json": {
+                    schema: {
+                      $ref: "#/components/schemas/CreateUser",
+                    },
+                  },
+                },
+              },
+              responses: {
+                "201": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: true,
+      });
+
+      expect(result).toContain("export const PostUsersBodySchema");
+      expect(result).toContain("export const PostUsersResponseSchema");
+      expect(result).toContain("body: PostUsersBodySchema");
+    });
+
+    it("should generate Request with query parameters", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+              },
+              required: ["id"],
+            },
+          },
+        },
+        paths: {
+          "/users": {
+            get: {
+              parameters: [
+                {
+                  name: "limit",
+                  in: "query",
+                  required: false,
+                  schema: { type: "number" },
+                },
+                {
+                  name: "offset",
+                  in: "query",
+                  required: false,
+                  schema: { type: "number" },
+                },
+              ],
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: true,
+      });
+
+      expect(result).toContain("export const GetUsersQuerySchema");
+      expect(result).toContain("query: GetUsersQuerySchema");
+      expect(result).toContain("limit: z.number().optional()");
+      expect(result).toContain("offset: z.number().optional()");
+    });
+
+    it("should generate Request with headers", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+              },
+              required: ["id"],
+            },
+          },
+        },
+        paths: {
+          "/users": {
+            get: {
+              parameters: [
+                {
+                  name: "Authorization",
+                  in: "header",
+                  required: true,
+                  schema: { type: "string" },
+                },
+              ],
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: true,
+      });
+
+      expect(result).toContain("export const GetUsersHeadersSchema");
+      expect(result).toContain("headers: GetUsersHeadersSchema");
+    });
+
+    it("should handle multiple 2xx responses as union", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+              },
+              required: ["id"],
+            },
+            Error: {
+              type: "object",
+              properties: {
+                message: { type: "string" },
+              },
+              required: ["message"],
+            },
+          },
+        },
+        paths: {
+          "/users": {
+            post: {
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+                "201": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: true,
+      });
+
+      expect(result).toContain("export const PostUsersResponseSchema");
+      expect(result).toContain("z.union([");
+    });
+
+    it("should not generate routes when includeRoutes is false", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+              },
+              required: ["id"],
+            },
+          },
+        },
+        paths: {
+          "/users/{id}": {
+            get: {
+              parameters: [
+                {
+                  name: "id",
+                  in: "path",
+                  required: true,
+                  schema: { type: "string" },
+                },
+              ],
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: false,
+      });
+
+      expect(result).not.toContain("export const Request");
+      expect(result).not.toContain("export const Response");
+    });
+
+    it("should handle paths without routes", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+              },
+              required: ["id"],
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: true,
+      });
+
+      expect(result).not.toContain("export const Request");
+      expect(result).not.toContain("export const Response");
+    });
+
+    it("should handle routes without requestBody", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+              },
+              required: ["id"],
+            },
+          },
+        },
+        paths: {
+          "/users": {
+            get: {
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: true,
+      });
+
+      expect(result).toContain("export const Response");
+      expect(result).toContain("GET: GetUsersResponseSchema");
+    });
+
+    it("should handle multiple methods on same path", () => {
+      const openapi = {
+        components: {
+          schemas: {
+            User: {
+              type: "object",
+              properties: {
+                id: { type: "string" },
+              },
+              required: ["id"],
+            },
+          },
+        },
+        paths: {
+          "/users/{id}": {
+            get: {
+              parameters: [
+                {
+                  name: "id",
+                  in: "path",
+                  required: true,
+                  schema: { type: "string" },
+                },
+              ],
+              responses: {
+                "200": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        $ref: "#/components/schemas/User",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            delete: {
+              parameters: [
+                {
+                  name: "id",
+                  in: "path",
+                  required: true,
+                  schema: { type: "string" },
+                },
+              ],
+              responses: {
+                "204": {
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {},
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+
+      const result = openApiToZodTsCode(openapi, undefined, {
+        includeRoutes: true,
+      });
+
+      expect(result).toContain("GET:");
+      expect(result).toContain("DELETE:");
+      expect(result).toContain("'/users/{id}':");
+    });
+  });
+});
+

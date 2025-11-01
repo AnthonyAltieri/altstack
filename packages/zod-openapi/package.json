@@ -1,0 +1,20 @@
+{
+  "name": "zod-openapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "oxlint": "^1.24.0",
+    "vitest": "^4.0.3"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  }
+}

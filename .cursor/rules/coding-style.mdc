@@ -1,0 +1,7 @@
+---
+alwaysApply: true
+---
+You **MUST**
+- Write code concisely
+- Assume the reader is an expert programmer
+- Balance descriptive names with very long names, lean towards descriptive but keep it minimum
