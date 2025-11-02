@@ -7,6 +7,26 @@ import {
   type RouteInfo,
 } from "./routes";
 
+function generateRouteSchemaName(
+  path: string,
+  method: string,
+  suffix: string,
+): string {
+  const pathParts = path
+    .split("/")
+    .filter((p) => p)
+    .map((p) => {
+      if (p.startsWith("{") && p.endsWith("}")) {
+        return p.slice(1, -1);
+      }
+      return p;
+    })
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+  const methodPrefix = method.charAt(0) + method.slice(1).toLowerCase();
+  const parts = [methodPrefix, ...pathParts, suffix];
+  return parts.join("");
+}
+
 function generateRouteSchemas(
   routes: RouteInfo[],
   convertSchema: (schema: AnySchema) => string,
@@ -80,23 +100,26 @@ function generateRouteSchemas(
       }
     }
 
-    if (names.responseSchemaName && !schemaNames.has(names.responseSchemaName)) {
-      schemaNames.add(names.responseSchemaName);
-      const successStatuses = Object.keys(route.responses).filter((s) =>
-        s.startsWith("2"),
+    // Generate schemas for ALL status codes, not just success
+    for (const [statusCode, responseSchema] of Object.entries(
+      route.responses,
+    )) {
+      if (!responseSchema) continue;
+
+      const isSuccess = statusCode.startsWith("2");
+      const suffix = isSuccess
+        ? `${statusCode}Response`
+        : `${statusCode}ErrorResponse`;
+      const responseSchemaName = generateRouteSchemaName(
+        route.path,
+        route.method,
+        suffix,
       );
-      const responseSchemas = successStatuses
-        .map((s) => route.responses[s])
-        .filter((s): s is AnySchema => Boolean(s));
-      
-      if (responseSchemas.length === 1) {
-        const zodExpr = convertSchema(responseSchemas[0]);
-        lines.push(`export const ${names.responseSchemaName} = ${zodExpr};`);
-      } else if (responseSchemas.length > 1) {
-        const zodExprs = responseSchemas.map((s) => convertSchema(s));
-        lines.push(
-          `export const ${names.responseSchemaName} = z.union([${zodExprs.join(", ")}]);`,
-        );
+
+      if (!schemaNames.has(responseSchemaName)) {
+        schemaNames.add(responseSchemaName);
+        const zodExpr = convertSchema(responseSchema);
+        lines.push(`export const ${responseSchemaName} = ${zodExpr};`);
       }
     }
   }
@@ -104,12 +127,13 @@ function generateRouteSchemas(
   return lines;
 }
 
-function generateRequestResponseObjects(
-  routes: RouteInfo[],
-): string[] {
+function generateRequestResponseObjects(routes: RouteInfo[]): string[] {
   const lines: string[] = [];
   const requestPaths: Record<string, Record<string, string[]>> = {};
-  const responsePaths: Record<string, Record<string, string>> = {};
+  const responsePaths: Record<
+    string,
+    Record<string, Record<string, string>>
+  > = {};
 
   for (const route of routes) {
     const names = generateRouteSchemaNames(route);
@@ -120,8 +144,9 @@ function generateRequestResponseObjects(
     if (!requestPaths[route.path]) {
       requestPaths[route.path] = {};
     }
-    if (!requestPaths[route.path][route.method]) {
-      requestPaths[route.path][route.method] = [];
+    const requestMethodObj = requestPaths[route.path]!;
+    if (!requestMethodObj[route.method]) {
+      requestMethodObj[route.method] = [];
     }
 
     const requestParts: string[] = [];
@@ -139,17 +164,33 @@ function generateRequestResponseObjects(
     }
 
     if (requestParts.length > 0) {
-      requestPaths[route.path][route.method] = requestParts;
+      requestMethodObj[route.method] = requestParts;
     }
 
+    // Store all status codes in nested structure
     if (!responsePaths[route.path]) {
       responsePaths[route.path] = {};
     }
-    const successStatuses = Object.keys(route.responses).filter((s) =>
-      s.startsWith("2"),
-    );
-    if (successStatuses.length > 0 && names.responseSchemaName) {
-      responsePaths[route.path][route.method] = names.responseSchemaName;
+    const responseMethodObj = responsePaths[route.path]!;
+    if (!responseMethodObj[route.method]) {
+      responseMethodObj[route.method] = {};
+    }
+
+    for (const [statusCode, responseSchema] of Object.entries(
+      route.responses,
+    )) {
+      if (!responseSchema) continue;
+
+      const isSuccess = statusCode.startsWith("2");
+      const suffix = isSuccess
+        ? `${statusCode}Response`
+        : `${statusCode}ErrorResponse`;
+      const responseSchemaName = generateRouteSchemaName(
+        route.path,
+        route.method,
+        suffix,
+      );
+      responseMethodObj[route.method]![statusCode] = responseSchemaName;
     }
   }
 
@@ -178,8 +219,12 @@ function generateRequestResponseObjects(
     const methodEntries = Object.entries(methods);
     if (methodEntries.length > 0) {
       lines.push(`  '${path}': {`);
-      for (const [method, schemaName] of methodEntries) {
-        lines.push(`    ${method}: ${schemaName},`);
+      for (const [method, statusCodes] of methodEntries) {
+        lines.push(`    ${method}: {`);
+        for (const [statusCode, schemaName] of Object.entries(statusCodes)) {
+          lines.push(`      '${statusCode}': ${schemaName},`);
+        }
+        lines.push(`    },`);
       }
       lines.push(`  },`);
     }
@@ -242,4 +287,3 @@ export const openApiToZodTsCode = (
 
   return lines.join("\n");
 };
-

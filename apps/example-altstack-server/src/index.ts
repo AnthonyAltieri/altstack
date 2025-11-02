@@ -2,6 +2,7 @@ import { cors } from "hono/cors";
 import {
   createRouter,
   createServer,
+  createDocsRouter,
   type TypedContext,
   type BaseContext,
 } from "@repo/server";
@@ -302,14 +303,32 @@ protectedRouter
     };
   });
 
-// Create server with middleware and Better Auth routes
-const app = createServer(
+// Create docs router for OpenAPI documentation
+const docsRouter = createDocsRouter(
   {
     todos: router,
     auth: protectedRouter,
   },
   {
+    title: "Todo API",
+    version: "1.0.0",
+    description: "A simple todo API with authentication",
+  },
+);
+
+// Create server with middleware and Better Auth routes
+const app = createServer(
+  {
+    todos: router,
+    auth: protectedRouter,
+    docs: docsRouter,
+  },
+  {
     createContext,
+    docs: {
+      path: "/docs", // Path where docs are served (determined by mount prefix "docs")
+      openapiPath: "/docs/openapi.json", // Path to OpenAPI spec
+    },
     middleware: {
       "*": {
         methods: ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"],
@@ -349,3 +368,6 @@ console.log(`   PATCH  /todos/{id}`);
 console.log(`   DELETE /todos/{id}`);
 console.log(`   GET    /protected/profile (requires auth)`);
 console.log(`   Auth routes: /api/auth/*`);
+console.log(`📚 Documentation:`);
+console.log(`   GET    /docs/openapi.json (OpenAPI spec)`);
+console.log(`   GET    /docs (Interactive API docs)`);

@@ -22,6 +22,10 @@ function normalizePath(prefix: string, path: string): string {
       ? normalizedPath.slice(0, -1)
       : normalizedPath;
   // Combine prefix and path - cleanPath already starts with /, so this works correctly
+  // Special case: if cleanPath is "/", just return the prefix (no trailing slash)
+  if (cleanPath === "/") {
+    return normalizedPrefix;
+  }
   return `${normalizedPrefix}${cleanPath}`;
 }
 
@@ -36,6 +40,10 @@ export function createServer<
         methods: string[];
         handler: (c: Context) => Promise<Response> | Response;
       };
+    };
+    docs?: {
+      path?: string;
+      openapiPath?: string;
     };
   },
 ): Hono {
@@ -252,6 +260,11 @@ export function createServer<
         currentCtx = middlewareResult as ProcedureContext;
 
         const response = await procedure.handler(currentCtx);
+
+        // If handler returns a Response directly (e.g., HTML), return it as-is
+        if (response instanceof Response) {
+          return response;
+        }
 
         if (procedure.config.output) {
           const validated = procedure.config.output.parse(response);

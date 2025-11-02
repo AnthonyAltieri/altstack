@@ -6,13 +6,13 @@ const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Server Framework',
-  tagline: 'A lightweight, type-safe server framework built on Hono with Zod validation',
+  title: 'Altstack',
+  tagline: 'Type-safe server and client framework built on Hono with Zod validation',
   favicon: 'img/favicon.ico',
   url: 'https://your-docs-site.com',
   baseUrl: '/',
   organizationName: 'repo',
-  projectName: 'server',
+  projectName: 'altstack',
   onBrokenLinks: 'throw',
   markdown: {
     hooks: {
@@ -44,9 +44,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: 'Server Framework',
+        title: 'Altstack',
         logo: {
-          alt: 'Server Framework Logo',
+          alt: 'Altstack Logo',
           src: 'img/logo.svg',
         },
         items: [
@@ -89,7 +89,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Server Framework.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Altstack.`,
       },
       prism: {
         theme: lightCodeTheme,
