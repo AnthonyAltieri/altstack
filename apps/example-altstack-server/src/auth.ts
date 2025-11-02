@@ -35,12 +35,12 @@ export type Session = z.infer<typeof SessionSchema>;
 //   emailAndPassword: { enabled: true },
 // });
 export const auth = {
-  handler: async (request: Request) => {
+  handler: async (_request: Request) => {
     // Mock handler - in real app, Better Auth handles this
     return new Response("Auth routes handled by Better Auth", { status: 404 });
   },
   api: {
-    getSession: async ({ headers }: { headers: Headers }) => {
+    getSession: async ({ headers: _headers }: { headers: Headers }) => {
       // Mock session retrieval - in real app, Better Auth handles this
       // This would typically read from cookies/headers and validate session
       return null;

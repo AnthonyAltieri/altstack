@@ -112,7 +112,7 @@ Middleware executes in the order they're defined.
 
 ## Reusable Procedures
 
-Create reusable procedures with middleware to reuse authentication or other middleware across multiple routes. See the [Reusable Procedures guide](/docs/core-concepts/reusable-procedures) for details:
+Create reusable procedures with middleware to reuse authentication or other middleware across multiple routes. See the [Reusable Procedures guide](/core-concepts/reusable-procedures) for details:
 
 ```typescript
 const router = createRouter<AppContext>();

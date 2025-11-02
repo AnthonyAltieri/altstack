@@ -59,7 +59,7 @@ protectedProcedure
 const app = createServer({ api: router });
 ```
 
-See the [Reusable Procedures guide](/docs/core-concepts/reusable-procedures) for more details.
+See the [Reusable Procedures guide](/core-concepts/reusable-procedures) for more details.
 
 ## Procedure-Level Middleware Pattern
 

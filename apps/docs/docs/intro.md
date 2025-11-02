@@ -1,3 +1,7 @@
+---
+slug: /
+---
+
 # Introduction
 
 A lightweight, type-safe server framework built on Hono with Zod validation. Inspired by tRPC's builder pattern, providing full type inference from a central router definition.

@@ -54,7 +54,7 @@ const router = createRouter<AppContext>()
     },
     output: z.array(TodoSchema),
   })
-  .handler((ctx: TypedContext<any, any, AppContext>) => {
+  .handler((ctx) => {
     let todos = todoStore.getAll();
 
     if (ctx.input.completed === "true") {
@@ -81,35 +81,20 @@ const router = createRouter<AppContext>()
       }),
     },
   })
-  .handler(
-    (
-      ctx: TypedContext<
-        { params: z.ZodObject<{ id: z.ZodString }> },
-        {
-          404: z.ZodObject<{
-            error: z.ZodObject<{
-              code: z.ZodLiteral<"NOT_FOUND">;
-              message: z.ZodString;
-            }>;
-          }>;
+  .handler((ctx) => {
+    const todo = todoStore.getById(ctx.input.id);
+
+    if (!todo) {
+      throw ctx.error({
+        error: {
+          code: "NOT_FOUND",
+          message: `Todo with id ${ctx.input.id} not found`,
         },
-        AppContext
-      >,
-    ) => {
-      const todo = todoStore.getById(ctx.input.id);
+      });
+    }
 
-      if (!todo) {
-        throw ctx.error({
-          error: {
-            code: "NOT_FOUND",
-            message: `Todo with id ${ctx.input.id} not found`,
-          },
-        });
-      }
-
-      return todo;
-    },
-  )
+    return todo;
+  })
   .post("/", {
     input: {
       body: z.object({
@@ -127,34 +112,14 @@ const router = createRouter<AppContext>()
       }),
     },
   })
-  .handler(
-    (
-      ctx: TypedContext<
-        {
-          body: z.ZodObject<{
-            title: z.ZodString;
-            description?: z.ZodOptional<z.ZodString>;
-          }>;
-        },
-        {
-          400: z.ZodObject<{
-            error: z.ZodObject<{
-              code: z.ZodLiteral<"VALIDATION_ERROR">;
-              message: z.ZodString;
-            }>;
-          }>;
-        },
-        AppContext
-      >,
-    ) => {
-      const todo = todoStore.create({
-        title: ctx.input.title,
-        description: ctx.input.description,
-      });
+  .handler((ctx) => {
+    const todo = todoStore.create({
+      title: ctx.input.title,
+      description: ctx.input.description,
+    });
 
-      return todo;
-    },
-  )
+    return todo;
+  })
   .patch("/{id}", {
     input: {
       params: z.object({
@@ -182,52 +147,24 @@ const router = createRouter<AppContext>()
       }),
     },
   })
-  .handler(
-    (
-      ctx: TypedContext<
-        {
-          params: z.ZodObject<{ id: z.ZodString }>;
-          body: z.ZodObject<{
-            title?: z.ZodOptional<z.ZodString>;
-            description?: z.ZodOptional<z.ZodString>;
-            completed?: z.ZodOptional<z.ZodBoolean>;
-          }>;
+  .handler((ctx) => {
+    const todo = todoStore.update(ctx.input.id, {
+      title: ctx.input.title,
+      description: ctx.input.description,
+      completed: ctx.input.completed,
+    });
+
+    if (!todo) {
+      throw ctx.error({
+        error: {
+          code: "NOT_FOUND",
+          message: `Todo with id ${ctx.input.id} not found`,
         },
-        {
-          404: z.ZodObject<{
-            error: z.ZodObject<{
-              code: z.ZodLiteral<"NOT_FOUND">;
-              message: z.ZodString;
-            }>;
-          }>;
-          400: z.ZodObject<{
-            error: z.ZodObject<{
-              code: z.ZodLiteral<"VALIDATION_ERROR">;
-              message: z.ZodString;
-            }>;
-          }>;
-        },
-        AppContext
-      >,
-    ) => {
-      const todo = todoStore.update(ctx.input.id, {
-        title: ctx.input.title,
-        description: ctx.input.description,
-        completed: ctx.input.completed,
       });
+    }
 
-      if (!todo) {
-        throw ctx.error({
-          error: {
-            code: "NOT_FOUND",
-            message: `Todo with id ${ctx.input.id} not found`,
-          },
-        });
-      }
-
-      return todo;
-    },
-  )
+    return todo;
+  })
   .delete("/{id}", {
     input: {
       params: z.object({
@@ -246,35 +183,20 @@ const router = createRouter<AppContext>()
       }),
     },
   })
-  .handler(
-    (
-      ctx: TypedContext<
-        { params: z.ZodObject<{ id: z.ZodString }> },
-        {
-          404: z.ZodObject<{
-            error: z.ZodObject<{
-              code: z.ZodLiteral<"NOT_FOUND">;
-              message: z.ZodString;
-            }>;
-          }>;
+  .handler((ctx) => {
+    const deleted = todoStore.delete(ctx.input.id);
+
+    if (!deleted) {
+      throw ctx.error({
+        error: {
+          code: "NOT_FOUND",
+          message: `Todo with id ${ctx.input.id} not found`,
         },
-        AppContext
-      >,
-    ) => {
-      const deleted = todoStore.delete(ctx.input.id);
+      });
+    }
 
-      if (!deleted) {
-        throw ctx.error({
-          error: {
-            code: "NOT_FOUND",
-            message: `Todo with id ${ctx.input.id} not found`,
-          },
-        });
-      }
-
-      return { success: true };
-    },
-  );
+    return { success: true };
+  });
 
 // Create a reusable protected procedure pattern (tRPC style)
 // Following the pattern from https://trpc.io/docs/server/authorization#option-2-authorize-using-middleware
@@ -360,40 +282,25 @@ protectedRouter
       },
     });
   })
-  .handler(
-    (
-      ctx: TypedContext<
-        { params?: never; query?: never; body?: never },
-        {
-          401: z.ZodObject<{
-            error: z.ZodObject<{
-              code: z.ZodLiteral<"UNAUTHORIZED">;
-              message: z.ZodString;
-            }>;
-          }>;
+  .handler((ctx) => {
+    // ✅ ctx.user is now known to be non-null after the middleware
+    // The next({ ctx: { user: ... } }) pattern ensures the runtime context has user
+    // Type check needed because TypeScript can't track the narrowing through next()
+    if (!ctx.user) {
+      // This should never happen due to middleware, but TypeScript needs the check
+      throw ctx.error({
+        error: {
+          code: "UNAUTHORIZED" as const,
+          message: "Authentication required",
         },
-        AppContext
-      >,
-    ) => {
-      // ✅ ctx.user is now known to be non-null after the middleware
-      // The next({ ctx: { user: ... } }) pattern ensures the runtime context has user
-      // Type check needed because TypeScript can't track the narrowing through next()
-      if (!ctx.user) {
-        // This should never happen due to middleware, but TypeScript needs the check
-        throw ctx.error({
-          error: {
-            code: "UNAUTHORIZED" as const,
-            message: "Authentication required",
-          },
-        });
-      }
-      return {
-        id: ctx.user.id,
-        email: ctx.user.email,
-        name: ctx.user.name,
-      };
-    },
-  );
+      });
+    }
+    return {
+      id: ctx.user.id,
+      email: ctx.user.email,
+      name: ctx.user.name,
+    };
+  });
 
 // Create server with middleware and Better Auth routes
 const app = createServer(
