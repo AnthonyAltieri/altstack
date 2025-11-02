@@ -1,6 +1,6 @@
 # Error Handling
 
-Define error schemas and use type-safe `ctx.throw()` for controlled error responses.
+Define error schemas and use type-safe `ctx.error()` for controlled error responses.
 
 ## Defining Error Schemas
 
@@ -33,7 +33,7 @@ const router = createRouter()
     if (!user) {
       // TypeScript knows this must match the 404 error schema
       // Status code is automatically inferred from the error type
-      ctx.throw({
+      throw ctx.error({
         error: {
           code: "NOT_FOUND",
           message: `User ${ctx.input.id} not found`,
@@ -77,7 +77,7 @@ const router = createRouter()
   })
   .handler((ctx) => {
     if (userExists(ctx.input.name)) {
-      ctx.throw({
+      throw ctx.error({
         error: {
           code: "CONFLICT",
           message: "User already exists",
@@ -91,7 +91,7 @@ const router = createRouter()
 
 ## Automatic Status Codes
 
-The status code is automatically inferred from the error type in `ctx.throw()`. You don't need to specify it manually - TypeScript ensures you can only throw errors that match your defined schemas.
+The status code is automatically inferred from the error type in `ctx.error()`. You don't need to specify it manually - TypeScript ensures you can only throw errors that match your defined schemas. Always use `throw ctx.error(...)` to throw the error.
 
 ## Validation Errors
 

@@ -16,6 +16,11 @@ module.exports = {
       label: 'Introduction',
     },
     {
+      type: 'doc',
+      id: 'example',
+      label: 'Example',
+    },
+    {
       type: 'category',
       label: 'Server',
       items: [

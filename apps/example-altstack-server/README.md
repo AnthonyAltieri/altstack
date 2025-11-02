@@ -7,7 +7,7 @@ A complete example todo application built with `@repo/server`, demonstrating typ
 - ✅ Full CRUD operations for todos
 - ✅ Type-safe request/response handling
 - ✅ Automatic input validation
-- ✅ Type-safe error handling with `ctx.throw()`
+- ✅ Type-safe error handling with `ctx.error()`
 - ✅ Query parameter filtering
 - ✅ In-memory data store
 
@@ -101,7 +101,7 @@ All endpoints are fully type-safe:
 
 - **Input validation**: Request parameters, query strings, and body are validated against Zod schemas
 - **Output validation**: Response data is validated against output schemas
-- **Error handling**: Type-safe error throwing with `ctx.throw()` - TypeScript ensures you only throw errors matching the defined error schemas
+- **Error handling**: Type-safe error throwing with `ctx.error()` - TypeScript ensures you only throw errors matching the defined error schemas
 - **Full inference**: `ctx.input` is fully typed based on your input configuration
 
 ## Project Structure
@@ -125,5 +125,5 @@ All endpoints return consistent error responses:
 }
 ```
 
-Status codes are automatically inferred from error schemas when using `ctx.throw()`.
+Status codes are automatically inferred from error schemas when using `ctx.error()`. Always use `throw ctx.error(...)` to throw errors.
 
