@@ -89,5 +89,31 @@ module.exports = {
         },
       ],
     },
+    {
+      type: 'category',
+      label: 'Kafka',
+      items: [
+        {
+          type: 'category',
+          label: 'Getting Started',
+          items: [
+            'kafka/getting-started/installation',
+            'kafka/getting-started/quickstart',
+          ],
+        },
+        {
+          type: 'category',
+          label: 'Core Concepts',
+          items: [
+            'kafka/core-concepts/topics-and-procedures',
+            'kafka/core-concepts/consumers',
+            'kafka/core-concepts/middleware',
+            'kafka/core-concepts/custom-context',
+            'kafka/core-concepts/error-handling',
+            'kafka/core-concepts/combining-routers',
+          ],
+        },
+      ],
+    },
   ],
 };

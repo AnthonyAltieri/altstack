@@ -11,6 +11,7 @@ import { cors } from "hono/cors";
 import { z } from "zod";
 import { auth, getAuthUser, type User } from "./auth.js";
 import { TodoSchema, todoStore } from "./store.js";
+import { env } from "./env.js";
 
 // Define app context with user from Better Auth
 interface AppContext extends Record<string, unknown> {
@@ -386,7 +387,7 @@ const app = createServer(
       "*": {
         methods: ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"],
         handler: cors({
-          origin: process.env.CLIENT_URL || "http://localhost:3000",
+          origin: env.CLIENT_URL,
           allowHeaders: ["Content-Type", "Authorization"],
           allowMethods: ["POST", "GET", "PUT", "PATCH", "DELETE", "OPTIONS"],
           credentials: true,
@@ -405,7 +406,7 @@ export default app;
 
 // Start server
 const { serve } = await import("@hono/node-server");
-const port = Number(process.env.PORT) || 3000;
+const port = env.PORT;
 
 serve({
   fetch: app.fetch,

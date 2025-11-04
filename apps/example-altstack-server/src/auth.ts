@@ -62,6 +62,7 @@ export async function getAuthSession(
 
   if (!result.success) {
     // Log validation errors in development
+    // Note: NODE_ENV is available via env but we check it here for development logging
     if (process.env.NODE_ENV === "development") {
       console.warn("Session validation failed:", result.error);
     }

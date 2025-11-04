@@ -89,11 +89,16 @@ curl -X DELETE http://localhost:3000/todos/1
 # Install dependencies
 pnpm install
 
+# Copy environment variables (optional - defaults are provided)
+cp .env.example .env
+
 # Start the development server
 pnpm dev
 ```
 
 The server will start on `http://localhost:3000` (or the port specified by `PORT` environment variable).
+
+Environment variables are validated using `@t3-oss/env-core` on startup. See `.env.example` for available configuration options.
 
 ## Type Safety
 
