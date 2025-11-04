@@ -10,6 +10,8 @@ This monorepo includes the following packages and apps:
 
 - **`@repo/server`**: A lightweight, type-safe server framework built on Hono with Zod validation. Inspired by tRPC's builder pattern, providing full type inference from a central router definition.
 
+- **`@repo/client`**: A type-safe API client that integrates with zod-openapi generated Request/Response objects. Provides full type inference, request/response validation, retry logic, and error handling.
+
 - **`zod-openapi`**: Convert OpenAPI schemas to Zod schemas with TypeScript code generation. Supports complex types, custom formats, and generates request/response lookup objects.
 
 - **`@repo/typescript-config`**: Shared TypeScript configuration files used throughout the monorepo.
