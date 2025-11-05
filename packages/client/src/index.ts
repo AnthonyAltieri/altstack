@@ -1,3 +1,4 @@
+// Main export file
 export { ApiClient, createApiClient } from "./client.js";
 export type { ApiClientOptions } from "./client.js";
 export {
