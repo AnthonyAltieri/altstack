@@ -13,5 +13,3 @@ export type {
   GenerateOpenAPISpecOptions,
   CreateDocsRouterOptions,
 } from "./openapi.js";
-// Trivial change
-
