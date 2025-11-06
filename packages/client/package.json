@@ -2,16 +2,18 @@
   "name": "@alt-stack/client",
   "version": "1.0.1",
   "description": "Type-safe API client that integrates with zod-openapi generated Request/Response objects",
-  "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "scripts": {
+    "build": "tsup",
     "test": "vitest",
     "check-types": "tsc --noEmit"
   },
@@ -23,6 +25,8 @@
   },
   "devDependencies": {
     "oxlint": "^1.24.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.9.2",
     "vitest": "^4.0.3"
   }
 }

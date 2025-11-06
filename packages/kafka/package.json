@@ -2,16 +2,18 @@
   "name": "@alt-stack/kafka",
   "version": "1.0.1",
   "description": "Type-safe Kafka consumer framework with Zod validation",
-  "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "scripts": {
+    "build": "tsup",
     "test": "vitest",
     "check-types": "tsc --noEmit"
   },
@@ -26,6 +28,8 @@
     "@testcontainers/kafka": "^10.28.0",
     "kafkajs": "^2.2.4",
     "oxlint": "^1.24.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.9.2",
     "vitest": "^4.0.3",
     "zod": "^4.0.0"
   }
