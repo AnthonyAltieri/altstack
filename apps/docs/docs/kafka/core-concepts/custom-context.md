@@ -17,8 +17,8 @@ interface BaseKafkaContext {
 
 The `message` property contains the full Kafka message object, which includes:
 - `value`: The message payload (Buffer)
-- `key`: Message key (Buffer | null)
-- `headers`: Message headers (Record<string, Buffer | undefined>)
+- `key`: Message key (`Buffer | null`)
+- `headers`: Message headers (`Record<string, Buffer | undefined>`)
 - `timestamp`: Message timestamp (string)
 
 ## Custom Context Types

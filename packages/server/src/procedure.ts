@@ -293,8 +293,8 @@ export class BaseProcedureBuilder<
         TBaseInput,
         TInput
       >,
-      output: config.output ?? this._baseConfig.output,
-      errors: mergedErrors,
+      output: (config.output ?? this._baseConfig.output) as TOutput extends z.ZodTypeAny ? TOutput : TBaseOutput,
+      errors: mergedErrors as MergeErrors<TBaseErrors, TErrors>,
     };
     // Convert middleware types to match ProcedureBuilder's expected type
     const typedMiddleware = this._middleware.map((mw) =>
@@ -380,8 +380,8 @@ export class BaseProcedureBuilder<
         TBaseInput,
         TInput
       >,
-      output: config.output ?? this._baseConfig.output,
-      errors: mergedErrors,
+      output: (config.output ?? this._baseConfig.output) as TOutput extends z.ZodTypeAny ? TOutput : TBaseOutput,
+      errors: mergedErrors as MergeErrors<TBaseErrors, TErrors>,
     };
     const typedMiddleware = this._middleware.map((mw) =>
       mw as unknown as (opts: {
@@ -466,8 +466,8 @@ export class BaseProcedureBuilder<
         TBaseInput,
         TInput
       >,
-      output: config.output ?? this._baseConfig.output,
-      errors: mergedErrors,
+      output: (config.output ?? this._baseConfig.output) as TOutput extends z.ZodTypeAny ? TOutput : TBaseOutput,
+      errors: mergedErrors as MergeErrors<TBaseErrors, TErrors>,
     };
     const typedMiddleware = this._middleware.map((mw) =>
       mw as unknown as (opts: {
@@ -552,8 +552,8 @@ export class BaseProcedureBuilder<
         TBaseInput,
         TInput
       >,
-      output: config.output ?? this._baseConfig.output,
-      errors: mergedErrors,
+      output: (config.output ?? this._baseConfig.output) as TOutput extends z.ZodTypeAny ? TOutput : TBaseOutput,
+      errors: mergedErrors as MergeErrors<TBaseErrors, TErrors>,
     };
     const typedMiddleware = this._middleware.map((mw) =>
       mw as unknown as (opts: {
@@ -638,8 +638,8 @@ export class BaseProcedureBuilder<
         TBaseInput,
         TInput
       >,
-      output: config.output ?? this._baseConfig.output,
-      errors: mergedErrors,
+      output: (config.output ?? this._baseConfig.output) as TOutput extends z.ZodTypeAny ? TOutput : TBaseOutput,
+      errors: mergedErrors as MergeErrors<TBaseErrors, TErrors>,
     };
     const typedMiddleware = this._middleware.map((mw) =>
       mw as unknown as (opts: {

@@ -391,7 +391,7 @@ function convertErrorsToOpenAPIResponses(
 // ============================================================================
 
 function convertProcedureToOpenAPIOperation<
-  TCustomContext extends Record<string, unknown> = Record<string, never>,
+  TCustomContext extends object = Record<string, never>,
 >(
   procedure: Procedure<
     InputConfig,
@@ -463,7 +463,7 @@ function convertProcedureToOpenAPIOperation<
 // ============================================================================
 
 function convertProceduresToOpenAPIPaths<
-  TCustomContext extends Record<string, unknown> = Record<string, never>,
+  TCustomContext extends object = Record<string, never>,
 >(
   procedures: Procedure<
     InputConfig,
@@ -477,7 +477,7 @@ function convertProceduresToOpenAPIPaths<
 
   for (const procedure of procedures) {
     const openAPIPath = convertPathToOpenAPI(procedure.path);
-    const operation = convertProcedureToOpenAPIOperation(
+    const operation = convertProcedureToOpenAPIOperation<TCustomContext>(
       procedure,
       schemaRegistry,
     );
@@ -534,7 +534,7 @@ export function generateOpenAPISpec<
   }
 
   const schemaRegistry = new SchemaRegistry();
-  const paths = convertProceduresToOpenAPIPaths(allProcedures, schemaRegistry);
+  const paths = convertProceduresToOpenAPIPaths<TCustomContext>(allProcedures, schemaRegistry);
   const schemas = schemaRegistry.getSchemas();
 
   const spec: OpenAPISpec = {

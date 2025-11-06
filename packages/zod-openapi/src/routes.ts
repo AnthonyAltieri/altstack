@@ -146,7 +146,8 @@ export function parseOpenApiPaths(
           operation["responses"],
         )) {
           if (response && typeof response === "object") {
-            const content = response["content"];
+            const responseSchema = response as AnySchema;
+            const content = responseSchema["content"];
             if (content && typeof content === "object") {
               const jsonContent = content["application/json"];
               if (jsonContent && typeof jsonContent === "object") {
