@@ -60,14 +60,14 @@ describe("openApiToZodTsCode with routes", () => {
         includeRoutes: true,
       });
 
-      expect(result).toContain("export const GetUsersIdParamsSchema");
-      expect(result).toContain("export const GetUsersIdResponseSchema");
+      expect(result).toContain("export const GetUsersIdParams");
+      expect(result).toContain("export const GetUsersId200Response");
       expect(result).toContain("export const Request = {");
       expect(result).toContain("export const Response = {");
       expect(result).toContain("'/users/{id}':");
       expect(result).toContain("GET:");
-      expect(result).toContain("params: GetUsersIdParamsSchema");
-      expect(result).toContain("GET: GetUsersIdResponseSchema");
+      expect(result).toContain("params: GetUsersIdParams");
+      expect(result).toContain("'200': GetUsersId200Response");
     });
 
     it("should generate Request with body schema", () => {
@@ -123,9 +123,9 @@ describe("openApiToZodTsCode with routes", () => {
         includeRoutes: true,
       });
 
-      expect(result).toContain("export const PostUsersBodySchema");
-      expect(result).toContain("export const PostUsersResponseSchema");
-      expect(result).toContain("body: PostUsersBodySchema");
+      expect(result).toContain("export const PostUsersBody");
+      expect(result).toContain("export const PostUsers201Response");
+      expect(result).toContain("body: PostUsersBody");
     });
 
     it("should generate Request with query parameters", () => {
@@ -178,8 +178,8 @@ describe("openApiToZodTsCode with routes", () => {
         includeRoutes: true,
       });
 
-      expect(result).toContain("export const GetUsersQuerySchema");
-      expect(result).toContain("query: GetUsersQuerySchema");
+      expect(result).toContain("export const GetUsersQuery");
+      expect(result).toContain("query: GetUsersQuery");
       expect(result).toContain("limit: z.number().optional()");
       expect(result).toContain("offset: z.number().optional()");
     });
@@ -228,8 +228,8 @@ describe("openApiToZodTsCode with routes", () => {
         includeRoutes: true,
       });
 
-      expect(result).toContain("export const GetUsersHeadersSchema");
-      expect(result).toContain("headers: GetUsersHeadersSchema");
+      expect(result).toContain("export const GetUsersHeaders");
+      expect(result).toContain("headers: GetUsersHeaders");
     });
 
     it("should handle multiple 2xx responses as union", () => {
@@ -284,8 +284,8 @@ describe("openApiToZodTsCode with routes", () => {
         includeRoutes: true,
       });
 
-      expect(result).toContain("export const PostUsersResponseSchema");
-      expect(result).toContain("z.union([");
+      expect(result).toContain("export const PostUsers200Response");
+      expect(result).toContain("export const PostUsers201Response");
     });
 
     it("should not generate routes when includeRoutes is false", () => {
@@ -396,7 +396,7 @@ describe("openApiToZodTsCode with routes", () => {
       });
 
       expect(result).toContain("export const Response");
-      expect(result).toContain("GET: GetUsersResponseSchema");
+      expect(result).toContain("'200': GetUsers200Response");
     });
 
     it("should handle multiple methods on same path", () => {

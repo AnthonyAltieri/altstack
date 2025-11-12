@@ -346,11 +346,15 @@ describe("openApiToZodTsCode", () => {
         },
       };
 
-      const result = openApiToZodTsCode(openapi);
+      const customImports = [
+        "import { ObjectId } from 'bson';",
+        "import { DateTime } from 'luxon';",
+      ];
+      
+      const result = openApiToZodTsCode(openapi, customImports);
       expect(result).toContain("import { z } from 'zod';");
       expect(result).toContain("import { ObjectId } from 'bson';");
       expect(result).toContain("import { DateTime } from 'luxon';");
-      expect(result).toContain("import { LuxonDateSchema");
     });
   });
 

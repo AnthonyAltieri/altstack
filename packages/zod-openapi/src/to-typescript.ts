@@ -21,7 +21,13 @@ function generateRouteSchemaName(
       }
       return p;
     })
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+    .map((word) => {
+      // Convert hyphenated words to PascalCase (e.g., "timer-drafts" -> "TimerDrafts")
+      return word
+        .split(/[-_]/)
+        .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase())
+        .join("");
+    });
   const methodPrefix = method.charAt(0) + method.slice(1).toLowerCase();
   const parts = [methodPrefix, ...pathParts, suffix];
   return parts.join("");
